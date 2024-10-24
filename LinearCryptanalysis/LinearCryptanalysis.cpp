@@ -1,30 +1,36 @@
-/*
-#include<iostream>
-#include<vector>
-#include<cmath>
-#include<algorithm>
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <algorithm>
 using namespace std;
 
 int l, m, Nr;
-int substituion[16] = { 14,4,13,1,2,15,11,8,3,10,6,12,5,9,0,7 };
-int permutation[16] = { 1,5,9,13,2,6,10,14,3,7,11,15,4,8,12,16 };
-vector<int> bitwiseXor(vector<int> vec1, vector<int> vec2) {
+int substituion[16] = {14, 4, 13, 1, 2, 15, 11, 8, 3, 10, 6, 12, 5, 9, 0, 7};
+int permutation[16] = {1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15, 4, 8, 12, 16};
+vector<int> bitwiseXor(vector<int> vec1, vector<int> vec2)
+{
     vector<int> result(vec1.size());
     transform(vec1.begin(), vec1.end(), vec2.begin(), result.begin(),
-        [](int a, int b) { return a ^ b; });
+              [](int a, int b)
+              { return a ^ b; });
     return result;
 }
-void reverseVector(vector<int>& v) {
+void reverseVector(vector<int> &v)
+{
     reverse(v.begin(), v.end());
 }
 
-vector<int> Bin2Hex(vector<int> bin) {
+vector<int> Bin2Hex(vector<int> bin)
+{
     vector<int> hex;
-    while (!bin.empty()) {
+    while (!bin.empty())
+    {
         int temp = 0;
         int i = 0;
-        if (bin.size() < 4) {
-            while (!bin.empty()) {
+        if (bin.size() < 4)
+        {
+            while (!bin.empty())
+            {
                 int s = bin.back();
                 temp += s * pow(2, 3 - i);
                 i++;
@@ -32,8 +38,10 @@ vector<int> Bin2Hex(vector<int> bin) {
             }
             hex.push_back(temp);
         }
-        else {
-            while (i < 4) {
+        else
+        {
+            while (i < 4)
+            {
                 int s = bin.back();
                 temp += s * pow(2, 3 - i);
                 i++;
@@ -44,16 +52,19 @@ vector<int> Bin2Hex(vector<int> bin) {
     }
     return hex;
 }
-vector<int> Hex2Bin(vector<int> hex) {
+vector<int> Hex2Bin(vector<int> hex)
+{
     vector<int> bin;
-    while (!hex.empty()){
+    while (!hex.empty())
+    {
         int temp = hex.back();
         vector<int> temp_bin;
-        while (temp){
+        while (temp)
+        {
             temp_bin.push_back(temp % 2);
             temp = temp / 2;
         }
-        if (temp_bin.size() < 4) 
+        if (temp_bin.size() < 4)
             while (temp_bin.size() < 4)
                 temp_bin.push_back(0);
         hex.pop_back();
@@ -62,28 +73,32 @@ vector<int> Hex2Bin(vector<int> hex) {
     }
     return bin;
 }
-void SPN(vector<int> x,vector<int>* ks) {
-    vector<int>* w = new vector<int>[Nr];
-    vector<int>* u = new vector<int>[Nr+1];
-    vector<int>* v = new vector<int>[Nr+1];
+void SPN(vector<int> x, vector<int> *ks)
+{
+    vector<int> *w = new vector<int>[Nr];
+    vector<int> *u = new vector<int>[Nr + 1];
+    vector<int> *v = new vector<int>[Nr + 1];
     vector<int> y;
     w[0] = x;
-    for (int r = 1; r <= Nr - 1; r++) {
+    for (int r = 1; r <= Nr - 1; r++)
+    {
         u[r] = bitwiseXor(w[r - 1], ks[r]);
-        for (int i = 1; i <= m; i++) {
+        for (int i = 1; i <= m; i++)
+        {
             vector<int> s_input(u[r].begin() + 4 * (i - 1), u[r].begin() + 4 * i);
             reverseVector(s_input);
             int s_input_hex = Bin2Hex(s_input).back();
-            vector<int> s_output_hex(1,substituion[s_input_hex]);
+            vector<int> s_output_hex(1, substituion[s_input_hex]);
             vector<int> s_output_bin = Hex2Bin(s_output_hex);
             vector<int> vr_i = s_output_bin;
             v[r].insert(v[r].end(), vr_i.begin(), vr_i.end());
         }
-        for (int i = 1; i <= l * m; i++) 
-            w[r].push_back(v[r][permutation[i-1]-1]);
+        for (int i = 1; i <= l * m; i++)
+            w[r].push_back(v[r][permutation[i - 1] - 1]);
     }
     u[Nr] = bitwiseXor(w[Nr - 1], ks[Nr]);
-    for (int i = 1; i <= m; i++) {
+    for (int i = 1; i <= m; i++)
+    {
         vector<int> s_input(u[Nr].begin() + 4 * (i - 1), u[Nr].begin() + 4 * i);
         reverseVector(s_input);
         int s_input_hex = Bin2Hex(s_input).back();
@@ -93,85 +108,92 @@ void SPN(vector<int> x,vector<int>* ks) {
         v[Nr].insert(v[Nr].end(), vNr_i.begin(), vNr_i.end());
     }
     y = bitwiseXor(v[Nr], ks[Nr + 1]);
-    for (int i = 0; i < y.size(); i++) {
+    for (int i = 0; i < y.size(); i++)
+    {
         cout << y[i];
     }
     return;
 }
 
-
-
-
-int main() {
+int main()
+{
     l = m = Nr = 4;
-    char* plainstr = new char[17];
-    char* keystr = new char[33];
+    char *plainstr = new char[17];
+    char *keystr = new char[33];
     vector<int> plaintext;
     vector<int> key;
-    vector<int>* keyscheme = new vector<int>[6];
+    vector<int> *keyscheme = new vector<int>[6];
     cin >> plainstr;
     cin >> keystr;
-    for (int i = 0; i < 32; i++) {
+    for (int i = 0; i < 32; i++)
+    {
         if (i < 16)
             plaintext.push_back(plainstr[i] - '0');
         key.push_back(keystr[i] - '0');
     }
-    for (int i = 1; i <= 5; i++) {
-        for (int j = 4 * i - 3; j <= 4 * i + 12; j++) {
+    for (int i = 1; i <= 5; i++)
+    {
+        for (int j = 4 * i - 3; j <= 4 * i + 12; j++)
+        {
             keyscheme[i].push_back(key[j - 1]);
         }
     }
     SPN(plaintext, keyscheme);
     return 0;
-
 }
-*/
 
-
-
-#include<iostream>
-#include<vector>
-#include<cmath>
-#include<random>
-#include<algorithm>
-#include<set>
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <random>
+#include <algorithm>
+#include <set>
 #include <chrono>
 using namespace std;
 
-int l, m, Nr;
-int T;
+int l, m, nr;
+int t;
 char unknownkey[33] = "00111010100101001101011000111111";
-int substituion[16] = { 14,4,13,1,2,15,11,8,3,10,6,12,5,9,0,7 };
+int substituion[16] = {14, 4, 13, 1, 2, 15, 11, 8, 3, 10, 6, 12, 5, 9, 0, 7};
 int rev_substituion[16];
-int permutation[16] = { 1,5,9,13,2,6,10,14,3,7,11,15,4,8,12,16 };
-void getRevsubstitution() {
-    for (int i = 0; i < 16; i++) {
+int permutation[16] = {1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15, 4, 8, 12, 16};
+void getrevsubstitution()
+{
+    for (int i = 0; i < 16; i++)
+    {
         int index;
-        for (int j = 0; j < 16; j++) 
+        for (int j = 0; j < 16; j++)
             if (substituion[j] == i)
-                index = j;  
+                index = j;
         rev_substituion[i] = index;
     }
-    cout << "SBox reversed accomplished!" << endl;
+    cout << "sbox reversed accomplished!" << endl;
     return;
 }
-vector<int> bitwiseXor(vector<int> vec1, vector<int> vec2) {
+vector<int> bitwisexor(vector<int> vec1, vector<int> vec2)
+{
     vector<int> result(vec1.size());
     transform(vec1.begin(), vec1.end(), vec2.begin(), result.begin(),
-        [](int a, int b) { return a ^ b; });
+              [](int a, int b)
+              { return a ^ b; });
     return result;
 }
-void reverseVector(vector<int>& v) {
+void reversevector(vector<int> &v)
+{
     reverse(v.begin(), v.end());
 }
 
-vector<int> Bin2Hex(vector<int> bin) {
+vector<int> bin2hex(vector<int> bin)
+{
     vector<int> hex;
-    while (!bin.empty()) {
+    while (!bin.empty())
+    {
         int temp = 0;
         int i = 0;
-        if (bin.size() < 4) {
-            while (!bin.empty()) {
+        if (bin.size() < 4)
+        {
+            while (!bin.empty())
+            {
                 int s = bin.back();
                 temp += s * pow(2, 3 - i);
                 i++;
@@ -179,8 +201,10 @@ vector<int> Bin2Hex(vector<int> bin) {
             }
             hex.push_back(temp);
         }
-        else {
-            while (i < 4) {//ÈôĞ¡ÓÚ4£¬ÌØÊâ´¦Àí
+        else
+        {
+            while (i < 4)
+            { // è‹¥å°äº4ï¼Œç‰¹æ®Šå¤„ç†
                 int s = bin.back();
                 temp += s * pow(2, 3 - i);
                 i++;
@@ -191,163 +215,183 @@ vector<int> Bin2Hex(vector<int> bin) {
     }
     return hex;
 }
-vector<int> Hex2Bin(vector<int> hex) {
+vector<int> hex2bin(vector<int> hex)
+{
     vector<int> bin;
-    while (!hex.empty()) {
+    while (!hex.empty())
+    {
         int temp = hex.back();
         vector<int> temp_bin;
-        while (temp) {
+        while (temp)
+        {
             temp_bin.push_back(temp % 2);
             temp = temp / 2;
         }
-        if (temp_bin.size() < 4)//Èô³¤¶ÈĞ¡ÓÚ4£¬½øĞĞ²¹0
+        if (temp_bin.size() < 4) // è‹¥é•¿åº¦å°äº4ï¼Œè¿›è¡Œè¡¥0
             while (temp_bin.size() < 4)
                 temp_bin.push_back(0);
         hex.pop_back();
-        reverseVector(temp_bin);
+        reversevector(temp_bin);
         bin.insert(bin.begin(), temp_bin.begin(), temp_bin.end());
     }
     return bin;
 }
-void SPN(vector<int> x, vector<int>* ks, vector<int>& y) {
-    vector<int>* w = new vector<int>[Nr];
-    vector<int>* u = new vector<int>[Nr + 1];
-    vector<int>* v = new vector<int>[Nr + 1];
+void spn(vector<int> x, vector<int> *ks, vector<int> &y)
+{
+    vector<int> *w = new vector<int>[nr];
+    vector<int> *u = new vector<int>[nr + 1];
+    vector<int> *v = new vector<int>[nr + 1];
     w[0] = x;
-    for (int r = 1; r <= Nr - 1; r++) {
-        u[r] = bitwiseXor(w[r - 1], ks[r]);
-        for (int i = 1; i <= m; i++) {
-            vector<int> s_input(u[r].begin() + 4 * (i - 1), u[r].begin() + 4 * i);//»ñÈ¡SBoxµÄÊäÈë
-            reverseVector(s_input);//×ª16½øÖÆÇ°±ØĞëÏÈ·­×ª
-            int s_input_hex = Bin2Hex(s_input).back();//×ªÎª16½øÖÆ¡£²¢ÇÒÓÉÓÚÄ¬ÈÏl=m=Nr=4£¬Òò´Ë×ª»»¶øÀ´µÄ16½øÖÆÖ»ÓĞ1Î»
-            vector<int> s_output_hex(1, substituion[s_input_hex]);//
-            vector<int> s_output_bin = Hex2Bin(s_output_hex);
-            vector<int> vr_i = s_output_bin;//µÃµ½vr
-            v[r].insert(v[r].end(), vr_i.begin(), vr_i.end());//²åÈëvr
+    for (int r = 1; r <= nr - 1; r++)
+    {
+        u[r] = bitwisexor(w[r - 1], ks[r]);
+        for (int i = 1; i <= m; i++)
+        {
+            vector<int> s_input(u[r].begin() + 4 * (i - 1), u[r].begin() + 4 * i); // è·å–sboxçš„è¾“å…¥
+            reversevector(s_input);                                                // è½¬16è¿›åˆ¶å‰å¿…é¡»å…ˆç¿»è½¬
+            int s_input_hex = bin2hex(s_input).back();                             // è½¬ä¸º16è¿›åˆ¶ã€‚å¹¶ä¸”ç”±äºé»˜è®¤l=m=nr=4ï¼Œå› æ­¤è½¬æ¢è€Œæ¥çš„16è¿›åˆ¶åªæœ‰1ä½
+            vector<int> s_output_hex(1, substituion[s_input_hex]);                 //
+            vector<int> s_output_bin = hex2bin(s_output_hex);
+            vector<int> vr_i = s_output_bin;                   // å¾—åˆ°vr
+            v[r].insert(v[r].end(), vr_i.begin(), vr_i.end()); // æ’å…¥vr
         }
         for (int i = 1; i <= l * m; i++)
-            w[r].push_back(v[r][permutation[i - 1] - 1]);//ÖÃ»»
+            w[r].push_back(v[r][permutation[i - 1] - 1]); // ç½®æ¢
     }
-    u[Nr] = bitwiseXor(w[Nr - 1], ks[Nr]);//ÃÜÔ¿»ìºÏ
-    for (int i = 1; i <= m; i++) {//×îºóÒ»ÂÖ
-        vector<int> s_input(u[Nr].begin() + 4 * (i - 1), u[Nr].begin() + 4 * i);
-        reverseVector(s_input);
-        int s_input_hex = Bin2Hex(s_input).back();
+    u[nr] = bitwisexor(w[nr - 1], ks[nr]); // å¯†é’¥æ··åˆ
+    for (int i = 1; i <= m; i++)
+    { // æœ€åä¸€è½®
+        vector<int> s_input(u[nr].begin() + 4 * (i - 1), u[nr].begin() + 4 * i);
+        reversevector(s_input);
+        int s_input_hex = bin2hex(s_input).back();
         vector<int> s_output_hex(1, substituion[s_input_hex]);
-        vector<int> s_output_bin = Hex2Bin(s_output_hex);
-        vector<int> vNr_i = s_output_bin;
-        v[Nr].insert(v[Nr].end(), vNr_i.begin(), vNr_i.end());
+        vector<int> s_output_bin = hex2bin(s_output_hex);
+        vector<int> vnr_i = s_output_bin;
+        v[nr].insert(v[nr].end(), vnr_i.begin(), vnr_i.end());
     }
-    //ÕâÀï²»½øĞĞÖÃ»»£¬ÃÜÔ¿»ìºÏºóÖ±½ÓÊä³ö
-    y = bitwiseXor(v[Nr], ks[Nr + 1]);
+    // è¿™é‡Œä¸è¿›è¡Œç½®æ¢ï¼Œå¯†é’¥æ··åˆåç›´æ¥è¾“å‡º
+    y = bitwisexor(v[nr], ks[nr + 1]);
     return;
 }
 
-void generatePairs(vector<vector<int>>& plaintext, vector<vector<int>>& ciphertext, vector<int>* keyscheme) {
-    random_device rd;  //ÓÃÓÚ»ñÈ¡ÖÖ×Ó
-    mt19937 gen(rd()); //Ê¹ÓÃMersenne TwisterËæ»úÊıÉú³ÉÆ÷
-    uniform_int_distribution<> dis(0, 1); //¶ş½øÖÆ£¬ËùÒÔÖ»Éú³É0ºÍ1
+void generatepairs(vector<vector<int>> &plaintext, vector<vector<int>> &ciphertext, vector<int> *keyscheme)
+{
+    random_device rd;                     // ç”¨äºè·å–ç§å­
+    mt19937 gen(rd());                    // ä½¿ç”¨mersenne twisteréšæœºæ•°ç”Ÿæˆå™¨
+    uniform_int_distribution<> dis(0, 1); // äºŒè¿›åˆ¶ï¼Œæ‰€ä»¥åªç”Ÿæˆ0å’Œ1
 
-    set<vector<int>> generatedPlaintexts; // ÓÃÓÚ¸ú×ÙÒÑÉú³ÉµÄÃ÷ÎÄ
+    set<vector<int>> generatedplaintexts; // ç”¨äºè·Ÿè¸ªå·²ç”Ÿæˆçš„æ˜æ–‡
 
-    for (int i = 0; i < T; i++) {
-        vector<int> plain(16); //Ã¿¸öÃ÷ÎÄ¶¼ÓĞ16Î»
+    for (int i = 0; i < t; i++)
+    {
+        vector<int> plain(16); // æ¯ä¸ªæ˜æ–‡éƒ½æœ‰16ä½
 
-        do {
-            for (int j = 0; j < 16; j++) {
-                plain[j] = dis(gen); //Ëæ»úÉú³É0»ò1
+        do
+        {
+            for (int j = 0; j < 16; j++)
+            {
+                plain[j] = dis(gen); // éšæœºç”Ÿæˆ0æˆ–1
             }
-        } while (generatedPlaintexts.find(plain) != generatedPlaintexts.end()); // ±£Ö¤Ã÷ÎÄÊÇÎ¨Ò»µÄ
+        } while (generatedplaintexts.find(plain) != generatedplaintexts.end()); // ä¿è¯æ˜æ–‡æ˜¯å”¯ä¸€çš„
 
-        generatedPlaintexts.insert(plain);
+        generatedplaintexts.insert(plain);
         plaintext.push_back(plain);
 
-        // Ê¹ÓÃSPNº¯ÊıµÃµ½¶ÔÓ¦µÄÃÜÎÄ
+        // ä½¿ç”¨spnå‡½æ•°å¾—åˆ°å¯¹åº”çš„å¯†æ–‡
         vector<int> cipher;
-        SPN(plain, keyscheme, cipher);
+        spn(plain, keyscheme, cipher);
         ciphertext.push_back(cipher);
     }
 
-    cout << "Generation accomplished!" << endl;
+    cout << "generation accomplished!" << endl;
     return;
 }
 
-void LinearCryptanalysis(vector<vector<int>> x, vector<vector<int>> y, vector<int> K5, int* rev_substition) {
-    int candidate_key_pairs_count24[16][16];//z1£¬ÏÈ¼ÆËãK2ºÍK4
-    int candidate_key_pairs_count13_1[16][16];//z2
-    int candidate_key_pairs_count13_2[16][16];//z3
-    int candidate_key_pairs_count13[16][16];//ÔÙ¼ÆËãK2ºÍK3
+void linearcryptanalysis(vector<vector<int>> x, vector<vector<int>> y, vector<int> k5, int *rev_substition)
+{
+    int candidate_key_pairs_count24[16][16];   // z1ï¼Œå…ˆè®¡ç®—k2å’Œk4
+    int candidate_key_pairs_count13_1[16][16]; // z2
+    int candidate_key_pairs_count13_2[16][16]; // z3
+    int candidate_key_pairs_count13[16][16];   // å†è®¡ç®—k2å’Œk3
 
-    vector<int>* maxkey = new vector<int>[4];//´æ´¢×îÖÕ½á¹û
-    for (int L1 = 0; L1 < 16; L1++)
-        for (int L2 = 0; L2 < 16; L2++)
-            candidate_key_pairs_count24[L1][L2] =
-            candidate_key_pairs_count13_1[L1][L2] =
-            candidate_key_pairs_count13_2[L1][L2] = 
-            candidate_key_pairs_count13[L1][L2] = 0;
-    cout << "Preparations finished!" << endl;
-    cout << "-----------K2 & K4 Analysis-----------" << endl;
-    cout << "Begin analyzing K2 and K4:" << endl;
+    vector<int> *maxkey = new vector<int>[4]; // å­˜å‚¨æœ€ç»ˆç»“æœ
+    for (int l1 = 0; l1 < 16; l1++)
+        for (int l2 = 0; l2 < 16; l2++)
+            candidate_key_pairs_count24[l1][l2] =
+                candidate_key_pairs_count13_1[l1][l2] =
+                    candidate_key_pairs_count13_2[l1][l2] =
+                        candidate_key_pairs_count13[l1][l2] = 0;
+    cout << "preparations finished!" << endl;
+    cout << "-----------k2 & k4 analysis-----------" << endl;
+    cout << "begin analyzing k2 and k4:" << endl;
     int t = 0;
-    while (t < T) {
+    while (t < t)
+    {
         vector<int> xt = x[t];
         vector<int> yt = y[t];
         vector<int> yt_1(yt.begin(), yt.begin() + 4);
         vector<int> yt_2(yt.begin() + 4, yt.begin() + 8);
         vector<int> yt_3(yt.begin() + 8, yt.begin() + 12);
         vector<int> yt_4(yt.begin() + 12, yt.begin() + 16);
-        for (int L1 = 0; L1 < 16; L1++) {
-            for (int L2 = 0; L2 < 16; L2++) {
-                vector<int> L1_v_hex(1, L1);
-                vector<int> L1_v_bin = Hex2Bin(L1_v_hex);
-                vector<int> L2_v_hex(1, L2);
-                vector<int> L2_v_bin = Hex2Bin(L2_v_hex);
-                vector<int> v4_2 = bitwiseXor(L1_v_bin, yt_2);
-                vector<int> v4_4 = bitwiseXor(L2_v_bin, yt_4);
-                //¶Ôv4_2½øĞĞÄæ´ú»»
-                reverseVector(v4_2);
-                int rev_s_input_hex1 = Bin2Hex(v4_2).back();
+        for (int l1 = 0; l1 < 16; l1++)
+        {
+            for (int l2 = 0; l2 < 16; l2++)
+            {
+                vector<int> l1_v_hex(1, l1);
+                vector<int> l1_v_bin = hex2bin(l1_v_hex);
+                vector<int> l2_v_hex(1, l2);
+                vector<int> l2_v_bin = hex2bin(l2_v_hex);
+                vector<int> v4_2 = bitwisexor(l1_v_bin, yt_2);
+                vector<int> v4_4 = bitwisexor(l2_v_bin, yt_4);
+                // å¯¹v4_2è¿›è¡Œé€†ä»£æ¢
+                reversevector(v4_2);
+                int rev_s_input_hex1 = bin2hex(v4_2).back();
                 vector<int> s_output_hex1(1, rev_substituion[rev_s_input_hex1]);
-                vector<int> s_output_bin1 = Hex2Bin(s_output_hex1);
+                vector<int> s_output_bin1 = hex2bin(s_output_hex1);
                 vector<int> u4_2 = s_output_bin1;
-                //¶Ôv4_4½øĞĞÄæ´ú»»
-                reverseVector(v4_4);
-                int rev_s_input_hex2 = Bin2Hex(v4_4).back();
+                // å¯¹v4_4è¿›è¡Œé€†ä»£æ¢
+                reversevector(v4_4);
+                int rev_s_input_hex2 = bin2hex(v4_4).back();
                 vector<int> s_output_hex2(1, rev_substituion[rev_s_input_hex2]);
-                vector<int> s_output_bin2 = Hex2Bin(s_output_hex2);
+                vector<int> s_output_bin2 = hex2bin(s_output_hex2);
                 vector<int> u4_4 = s_output_bin2;
-                //ÕÒ³öµÈÓÚ0µÄÎ»ÖÃ
+                // æ‰¾å‡ºç­‰äº0çš„ä½ç½®
                 int z1 = xt[4] ^ xt[6] ^ xt[7] ^ u4_2[1] ^ u4_2[3] ^ u4_4[1] ^ u4_4[3];
-                if (z1 == 0) 
-                    candidate_key_pairs_count24[L1][L2] += 1;
+                if (z1 == 0)
+                    candidate_key_pairs_count24[l1][l2] += 1;
             }
         }
         t++;
-        cout << t << "/" << T << " rounds finished" << endl;;
+        cout << t << "/" << t << " rounds finished" << endl;
+        ;
     }
-    //ÕÒ³ö×î´óÖµµÄÎ»ÖÃ£¬±éÀú
+    // æ‰¾å‡ºæœ€å¤§å€¼çš„ä½ç½®ï¼Œéå†
     int max = -1;
-    for (int L1 = 0; L1 < 16; L1++) {
-        for (int L2 = 0; L2 < 16; L2++) {
-            candidate_key_pairs_count24[L1][L2] = abs(candidate_key_pairs_count24[L1][L2] - T / 2);
-            if (candidate_key_pairs_count24[L1][L2] > max) {
-                max = candidate_key_pairs_count24[L1][L2];
-                vector<int> L1_v_hex(1, L1);
-                vector<int> L2_v_hex(1, L2);
-                vector<int> K2 = Hex2Bin(L1_v_hex);
-                vector<int> K4 = Hex2Bin(L2_v_hex);
-                maxkey[1] = K2;
-                maxkey[3] = K4;
+    for (int l1 = 0; l1 < 16; l1++)
+    {
+        for (int l2 = 0; l2 < 16; l2++)
+        {
+            candidate_key_pairs_count24[l1][l2] = abs(candidate_key_pairs_count24[l1][l2] - t / 2);
+            if (candidate_key_pairs_count24[l1][l2] > max)
+            {
+                max = candidate_key_pairs_count24[l1][l2];
+                vector<int> l1_v_hex(1, l1);
+                vector<int> l2_v_hex(1, l2);
+                vector<int> k2 = hex2bin(l1_v_hex);
+                vector<int> k4 = hex2bin(l2_v_hex);
+                maxkey[1] = k2;
+                maxkey[3] = k4;
             }
         }
     }
-    cout << "K2 and K4 analysis finished!" << endl;
+    cout << "k2 and k4 analysis finished!" << endl;
 
-    //¼ÆËãK1ºÍK3£º
-    cout << "-----------K1 & K3 Analysis-----------" << endl;
-    cout << "Begin analyzing K1 and K3:" << endl;
+    // è®¡ç®—k1å’Œk3ï¼š
+    cout << "-----------k1 & k3 analysis-----------" << endl;
+    cout << "begin analyzing k1 and k3:" << endl;
     t = 0;
-    while (t < T) {
+    while (t < t)
+    {
         vector<int> xt = x[t];
         vector<int> yt = y[t];
         vector<int> yt_1(yt.begin(), yt.begin() + 4);
@@ -355,165 +399,177 @@ void LinearCryptanalysis(vector<vector<int>> x, vector<vector<int>> y, vector<in
         vector<int> yt_3(yt.begin() + 8, yt.begin() + 12);
         vector<int> yt_4(yt.begin() + 12, yt.begin() + 16);
 
-        //v4_2ºÍv4_4¿ÉÒÔÌáÇ°Ê¹ÓÃÖ®Ç°ÒÑ¾­ÆÆ½âµÄK2ºÍK4Òì»òÌáÇ°Ëã³ö£¬±ÜÃâÖØ¸´¼ÆËã
+        // v4_2å’Œv4_4å¯ä»¥æå‰ä½¿ç”¨ä¹‹å‰å·²ç»ç ´è§£çš„k2å’Œk4å¼‚æˆ–æå‰ç®—å‡ºï¼Œé¿å…é‡å¤è®¡ç®—
 
-        //Òì»ò¼ÆËãv4_2
-        vector<int> v4_2 = bitwiseXor(maxkey[1], yt_2);
-        //¶Ôv4_2½øĞĞÄæ´ú»»
-        reverseVector(v4_2);
-        int rev_s_input_hex2 = Bin2Hex(v4_2).back();
+        // å¼‚æˆ–è®¡ç®—v4_2
+        vector<int> v4_2 = bitwisexor(maxkey[1], yt_2);
+        // å¯¹v4_2è¿›è¡Œé€†ä»£æ¢
+        reversevector(v4_2);
+        int rev_s_input_hex2 = bin2hex(v4_2).back();
         vector<int> s_output_hex2(1, rev_substituion[rev_s_input_hex2]);
-        vector<int> s_output_bin2 = Hex2Bin(s_output_hex2);
+        vector<int> s_output_bin2 = hex2bin(s_output_hex2);
         vector<int> u4_2 = s_output_bin2;
 
-        //Òì»ò¼ÆËãv4_4
-        vector<int> v4_4 = bitwiseXor(maxkey[3], yt_4);
-        //¶Ôv4_4½øĞĞÄæ´ú»»
-        reverseVector(v4_4);
-        int rev_s_input_hex4 = Bin2Hex(v4_4).back();
+        // å¼‚æˆ–è®¡ç®—v4_4
+        vector<int> v4_4 = bitwisexor(maxkey[3], yt_4);
+        // å¯¹v4_4è¿›è¡Œé€†ä»£æ¢
+        reversevector(v4_4);
+        int rev_s_input_hex4 = bin2hex(v4_4).back();
         vector<int> s_output_hex4(1, rev_substituion[rev_s_input_hex4]);
-        vector<int> s_output_bin4 = Hex2Bin(s_output_hex4);
+        vector<int> s_output_bin4 = hex2bin(s_output_hex4);
         vector<int> u4_4 = s_output_bin4;
 
-        for (int L1 = 0; L1 < 16; L1++) {
-            for (int L2 = 0; L2 < 16; L2++) {
-                vector<int> L1_v_hex(1, L1);
-                vector<int> L1_v_bin = Hex2Bin(L1_v_hex);
-                vector<int> L2_v_hex(1, L2);
-                vector<int> L2_v_bin = Hex2Bin(L2_v_hex);
+        for (int l1 = 0; l1 < 16; l1++)
+        {
+            for (int l2 = 0; l2 < 16; l2++)
+            {
+                vector<int> l1_v_hex(1, l1);
+                vector<int> l1_v_bin = hex2bin(l1_v_hex);
+                vector<int> l2_v_hex(1, l2);
+                vector<int> l2_v_bin = hex2bin(l2_v_hex);
 
-                vector<int> v4_1 = bitwiseXor(L1_v_bin, yt_1);               
-                vector<int> v4_3 = bitwiseXor(L2_v_bin, yt_3);
-                
-                //¶Ôv4_1½øĞĞÄæ´ú»»
-                reverseVector(v4_1);
-                int rev_s_input_hex1 = Bin2Hex(v4_1).back();
+                vector<int> v4_1 = bitwisexor(l1_v_bin, yt_1);
+                vector<int> v4_3 = bitwisexor(l2_v_bin, yt_3);
+
+                // å¯¹v4_1è¿›è¡Œé€†ä»£æ¢
+                reversevector(v4_1);
+                int rev_s_input_hex1 = bin2hex(v4_1).back();
                 vector<int> s_output_hex1(1, rev_substituion[rev_s_input_hex1]);
-                vector<int> s_output_bin1 = Hex2Bin(s_output_hex1);
+                vector<int> s_output_bin1 = hex2bin(s_output_hex1);
                 vector<int> u4_1 = s_output_bin1;
-                
-                //¶Ôv4_3½øĞĞÄæ´ú»»
-                reverseVector(v4_3);
-                int rev_s_input_hex3 = Bin2Hex(v4_3).back();
+
+                // å¯¹v4_3è¿›è¡Œé€†ä»£æ¢
+                reversevector(v4_3);
+                int rev_s_input_hex3 = bin2hex(v4_3).back();
                 vector<int> s_output_hex3(1, rev_substituion[rev_s_input_hex3]);
-                vector<int> s_output_bin3 = Hex2Bin(s_output_hex3);
+                vector<int> s_output_bin3 = hex2bin(s_output_hex3);
                 vector<int> u4_3 = s_output_bin3;
-                
-                //ÕÒ³öµÈÓÚ0µÄÎ»ÖÃ
+
+                // æ‰¾å‡ºç­‰äº0çš„ä½ç½®
                 int z2 = xt[0] ^ xt[1] ^ xt[3] ^ u4_1[0] ^ u4_2[0] ^ u4_3[0] ^ u4_4[0];
-                if (z2 == 0) 
-                    candidate_key_pairs_count13_1[L1][L2] += 1;
+                if (z2 == 0)
+                    candidate_key_pairs_count13_1[l1][l2] += 1;
 
                 int z3 = xt[8] ^ xt[9] ^ xt[11] ^ u4_1[2] ^ u4_2[2] ^ u4_3[2] ^ u4_4[2];
                 if (z3 == 0)
-                    candidate_key_pairs_count13_2[L1][L2] += 1;
+                    candidate_key_pairs_count13_2[l1][l2] += 1;
             }
         }
         t++;
-        cout << t << "/" << T << " rounds finished" << endl;;
+        cout << t << "/" << t << " rounds finished" << endl;
+        ;
     }
-    //ÕÒ³ö×î´óÖµµÄÎ»ÖÃ£¬±éÀú
+    // æ‰¾å‡ºæœ€å¤§å€¼çš„ä½ç½®ï¼Œéå†
     max = -1;
-    for (int L1 = 0; L1 < 16; L1++) {
-        for (int L2 = 0; L2 < 16; L2++) {
-            candidate_key_pairs_count13_1[L1][L2] = abs(candidate_key_pairs_count13_1[L1][L2] - T / 2);
-            candidate_key_pairs_count13_2[L1][L2] = abs(candidate_key_pairs_count13_2[L1][L2] - T / 2);
-            candidate_key_pairs_count13[L1][L2] = candidate_key_pairs_count13_1[L1][L2] + candidate_key_pairs_count13_2[L1][L2];
-            if (candidate_key_pairs_count13[L1][L2] > max) {
-                max = candidate_key_pairs_count13[L1][L2];
-                vector<int> L1_v_hex(1, L1);
-                vector<int> L2_v_hex(1, L2);
-                vector<int> K1 = Hex2Bin(L1_v_hex);
-                vector<int> K3 = Hex2Bin(L2_v_hex);
-                maxkey[0] = K1;
-                maxkey[2] = K3;
+    for (int l1 = 0; l1 < 16; l1++)
+    {
+        for (int l2 = 0; l2 < 16; l2++)
+        {
+            candidate_key_pairs_count13_1[l1][l2] = abs(candidate_key_pairs_count13_1[l1][l2] - t / 2);
+            candidate_key_pairs_count13_2[l1][l2] = abs(candidate_key_pairs_count13_2[l1][l2] - t / 2);
+            candidate_key_pairs_count13[l1][l2] = candidate_key_pairs_count13_1[l1][l2] + candidate_key_pairs_count13_2[l1][l2];
+            if (candidate_key_pairs_count13[l1][l2] > max)
+            {
+                max = candidate_key_pairs_count13[l1][l2];
+                vector<int> l1_v_hex(1, l1);
+                vector<int> l2_v_hex(1, l2);
+                vector<int> k1 = hex2bin(l1_v_hex);
+                vector<int> k3 = hex2bin(l2_v_hex);
+                maxkey[0] = k1;
+                maxkey[2] = k3;
             }
         }
     }
-    cout << "K1 and K3 analysis finished!" << endl;
-    cout << "-----------Results-----------" << endl;
-    //Êä³ö½á¹û£º
-    cout << "K5_1:";
-    for (int i = 0; i < 4; i++) {
+    cout << "k1 and k3 analysis finished!" << endl;
+    cout << "-----------results-----------" << endl;
+    // è¾“å‡ºç»“æœï¼š
+    cout << "k5_1:";
+    for (int i = 0; i < 4; i++)
+    {
         cout << maxkey[0][i];
     }
     cout << endl;
-    cout << "K5_2:";
-    for (int i = 0; i < 4; i++) {
+    cout << "k5_2:";
+    for (int i = 0; i < 4; i++)
+    {
         cout << maxkey[1][i];
     }
     cout << endl;
-    cout << "K5_3:";
-    for (int i = 0; i < 4; i++) {
+    cout << "k5_3:";
+    for (int i = 0; i < 4; i++)
+    {
         cout << maxkey[2][i];
     }
     cout << endl;
-    cout << "K5_4:";
-    for (int i = 0; i < 4; i++) {
+    cout << "k5_4:";
+    for (int i = 0; i < 4; i++)
+    {
         cout << maxkey[3][i];
     }
     cout << endl;
-    //½«½á¹ûÓëÊµ¼ÊµÄÃÜÔ¿¶Ô±È
+    // å°†ç»“æœä¸å®é™…çš„å¯†é’¥å¯¹æ¯”
     vector<int> expected_key;
-    for (int i = 0; i < 4; i++) 
+    for (int i = 0; i < 4; i++)
         expected_key.insert(expected_key.end(), maxkey[i].begin(), maxkey[i].end());
-    
-    if (equal(expected_key.begin(), expected_key.end(), K5.begin()))
-        cout << "Success!" << endl;
+
+    if (equal(expected_key.begin(), expected_key.end(), k5.begin()))
+        cout << "success!" << endl;
     else
-        cout << "Failure!" << endl;
-    cout << "LinearCryptanalysis accomplished!" << endl;
+        cout << "failure!" << endl;
+    cout << "linearcryptanalysis accomplished!" << endl;
     return;
 }
 
-
-int main() {
-    l = m = Nr = 4;
-    cout << "Based on a SPN Network(l=m=Nr=4)," << endl;
-    //¿ªÊ¼ÊäÈë²ÎÊıT£¬¼´Ã÷ÎÄÃÜÎÄ¶ÔÊı
-    cout << "First put in T for pairs of plaintext-cipher text:" << endl;
-    cout << "T=";
-    cin >> T;
+int main()
+{
+    l = m = nr = 4;
+    cout << "based on a spn network(l=m=nr=4)," << endl;
+    // å¼€å§‹è¾“å…¥å‚æ•°tï¼Œå³æ˜æ–‡å¯†æ–‡å¯¹æ•°
+    cout << "first put in t for pairs of plaintext-cipher text:" << endl;
+    cout << "t=";
+    cin >> t;
     vector<vector<int>> plaintext;
     vector<vector<int>> ciphertext;
     vector<int> key;
-    vector<int>* keyscheme = new vector<int>[6];
-    for (int i = 0; i < 32; i++) // Éú³ÉÃÜÔ¿
+    vector<int> *keyscheme = new vector<int>[6];
+    for (int i = 0; i < 32; i++) // ç”Ÿæˆå¯†é’¥
         key.push_back(unknownkey[i] - '0');
-    
-    for (int i = 1; i <= 5; i++) { //Éú³É¶ÔÓ¦ÃÜÔ¿±àÅÅ·½°¸
-        for (int j = 4 * i - 3; j <= 4 * i + 12; j++) {
+
+    for (int i = 1; i <= 5; i++)
+    { // ç”Ÿæˆå¯¹åº”å¯†é’¥ç¼–æ’æ–¹æ¡ˆ
+        for (int j = 4 * i - 3; j <= 4 * i + 12; j++)
+        {
             keyscheme[i].push_back(key[j - 1]);
         }
     }
-    cout << "-----------Start Timing-----------" << endl;
-    // »ñÈ¡¿ªÊ¼Ê±¼äµã
+    cout << "-----------start timing-----------" << endl;
+    // è·å–å¼€å§‹æ—¶é—´ç‚¹
     auto start = chrono::high_resolution_clock::now();
-    cout << "Timing started!" << endl;
-    //¿ªÊ¼Éú³ÉÃ÷ÎÄÃÜÎÄ¶Ô
-    cout << "-----------Generate Pairs-----------" << endl;
-    generatePairs(plaintext, ciphertext, keyscheme);
-    //½øĞĞSBoxµÄ·­×ª
-    cout << "-----------Reverse SBox-----------" << endl;
-    getRevsubstitution();
-    cout << "Reverse SBox:" << endl;
-    for (int i = 0; i < 16; i++) {
+    cout << "timing started!" << endl;
+    // å¼€å§‹ç”Ÿæˆæ˜æ–‡å¯†æ–‡å¯¹
+    cout << "-----------generate pairs-----------" << endl;
+    generatepairs(plaintext, ciphertext, keyscheme);
+    // è¿›è¡Œsboxçš„ç¿»è½¬
+    cout << "-----------reverse sbox-----------" << endl;
+    getrevsubstitution();
+    cout << "reverse sbox:" << endl;
+    for (int i = 0; i < 16; i++)
+    {
         cout << rev_substituion[i] << " ";
     }
     cout << endl;
-    //ÕıÊ½¿ªÊ¼ÏßĞÔ¹¥»÷
-    cout << "-----------LinearCryptanalysis-----------" << endl;
-    LinearCryptanalysis(plaintext, ciphertext, keyscheme[5], rev_substituion);
-    // »ñÈ¡½áÊøÊ±¼äµã
+    // æ­£å¼å¼€å§‹çº¿æ€§æ”»å‡»
+    cout << "-----------linearcryptanalysis-----------" << endl;
+    linearcryptanalysis(plaintext, ciphertext, keyscheme[5], rev_substituion);
+    // è·å–ç»“æŸæ—¶é—´ç‚¹
     auto stop = chrono::high_resolution_clock::now();
 
-    // ¼ÆËã»¨·ÑµÄÊ±¼ä
+    // è®¡ç®—èŠ±è´¹çš„æ—¶é—´
     auto duration = chrono::duration_cast<chrono::seconds>(stop - start);
     int hours = duration.count() / 3600;
     int minutes = (duration.count() % 3600) / 60;
     int seconds = duration.count() % 60;
 
-    cout << "Time taken: " << hours << " hours " << minutes << " minutes " << seconds << " seconds." << endl;
+    cout << "time taken: " << hours << " hours " << minutes << " minutes " << seconds << " seconds." << endl;
     return 0;
-
 }
